@@ -10,6 +10,7 @@ export LOTUS_FEVM_ENABLEETHRPC=1
 
 rm -rf ~/.genesis-sectors
 
+cd lotus-local-net
 ./lotus fetch-params 2048
 
 ./lotus-seed pre-seal --sector-size 2KiB --num-sectors 2
