@@ -10,22 +10,34 @@ export LOTUS_FEVM_ENABLEETHRPC=1
 cd lotus-local-net
 
 
-./lotus daemon --lotus-make-genesis=devgen.car --genesis-template=localnet.json --bootstrap=false &
-EXIT_TRAP="kill -2 $!" 
-echo $EXIT_TRAP
+./lotus daemon --bootstrap=false &> daemon.log &
+DAEMON_PID=$!
+EXIT_TRAP="kill -2 $DAEMON_PID 2>&1" 
 trap "$EXIT_TRAP" EXIT
+
+echo Awaiting Lotus Daemon API...
 until [ -e $LOTUS_PATH/api ]; do
-    sleep 0.01
+    if kill -0 $DAEMON_PID
+    then
+        sleep 0.01
+    else
+        cat daemon.log
+        exit 1
+    fi
 done
 
 
 f4=$(./lotus wallet new delegated)
 
-./lotus-miner run --nosync &
+./lotus-miner run --nosync &> miner.log &
 EXIT_TRAP+="; kill -2 $!"
-echo $EXIT_TRAP
 trap "$EXIT_TRAP" EXIT
 
-./lotus send $f4 1
+FUNDING_MSG=$(./lotus send $f4 1 | tail -n 1)
+
+echo Awaiting funding...
+FUNDING_RECEIPT=$(./lotus state wait-msg $FUNDING_MSG)
+
+echo -e "$FUNDING_RECEIPT"
 
 ./lotus evm stat $f4
