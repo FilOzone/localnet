@@ -6,12 +6,25 @@ export CGO_CFLAGS="-D__BLST_PORTABLE__"
 export LOTUS_FEVM_ENABLEETHRPC=1
 
 
+cd lotus-local-net
 
 
 ./lotus daemon --lotus-make-genesis=devgen.car --genesis-template=localnet.json --bootstrap=false &
+EXIT_TRAP="kill -2 $!" 
+echo $EXIT_TRAP
+trap "$EXIT_TRAP" EXIT
+until [ -e $LOTUS_PATH/api ]; do
+    sleep 0.01
+done
 
-./lotus wallet import --as-default ~/.genesis-sectors/pre-seal-t01000.key 
 
-./lotus-miner init --genesis-miner --actor=t01000 --sector-size=2KiB --pre-sealed-sectors=~/.genesis-sectors --pre-sealed-metadata=~/.genesis-sectors/pre-seal-t01000.json --nosync 
+f4=$(./lotus wallet new delegated)
 
 ./lotus-miner run --nosync &
+EXIT_TRAP+="; kill -2 $!"
+echo $EXIT_TRAP
+trap "$EXIT_TRAP" EXIT
+
+./lotus send $f4 1
+
+./lotus evm stat $f4

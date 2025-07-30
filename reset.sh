@@ -9,6 +9,7 @@ export LOTUS_FEVM_ENABLEETHRPC=1
 
 
 rm -rf ~/.genesis-sectors
+rm -rf $LOTUS_MINER_PATH
 
 cd lotus-local-net
 ./lotus fetch-params 2048
@@ -17,5 +18,14 @@ cd lotus-local-net
 ./lotus-seed genesis new localnet.json
 ./lotus-seed genesis add-miner localnet.json ~/.genesis-sectors/pre-seal-t01000.json
 
-f4=$(./lotus wallet new delegated)
-./lotus evm stat $f4
+echo starting daemon
+./lotus daemon --lotus-make-genesis=devgen.car --genesis-template=localnet.json --bootstrap=false &> daemon.log &
+trap "kill -2 $!" EXIT
+until [ -e $LOTUS_PATH/api ]; do
+    sleep 0.01
+done
+
+echo importing wallet
+./lotus wallet import --as-default ~/.genesis-sectors/pre-seal-t01000.key 
+echo init miner
+./lotus-miner init --genesis-miner --actor=t01000 --sector-size=2KiB --pre-sealed-sectors=~/.genesis-sectors --pre-sealed-metadata=~/.genesis-sectors/pre-seal-t01000.json --nosync 
