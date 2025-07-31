@@ -9,6 +9,10 @@ export LOTUS_FEVM_ENABLEETHRPC=1
 
 cd lotus-local-net
 
+while [ -e $LOTUS_PATH/repo.lock ]; do
+    echo found existing $LOTUS_PATH/repo.lock
+    sleep 5
+done
 
 ./lotus daemon --bootstrap=false &> daemon.log &
 DAEMON_PID=$!
@@ -28,6 +32,11 @@ done
 
 
 f4=$(./lotus wallet new delegated)
+
+while [ -e $LOTUS_MINER_PATH/repo.lock ]; do
+    echo found existing $LOTUS_MINER_PATH/repo.lock
+    sleep 5
+done
 
 ./lotus-miner run --nosync &> miner.log &
 EXIT_TRAP+="; kill -2 $!"
