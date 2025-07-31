@@ -36,7 +36,11 @@ API_END=$(date +%s.%N)
 echo `echo $API_END - $API_START | bc`
 
 
+echo -n "Creating f4 account...    "
+WALLET_START=$(date +%s.%N)
 f4=$(./lotus wallet new delegated)
+WALLET_END=$(date +%s.%N)
+echo `echo $WALLET_END - $WALLET_START | bc`
 
 while [ -e $LOTUS_MINER_PATH/repo.lock ]; do
     echo found existing $LOTUS_MINER_PATH/repo.lock
@@ -47,10 +51,14 @@ done
 EXIT_TRAP+="; kill -2 $!"
 trap "$EXIT_TRAP" EXIT
 
-MINING_START=$(date +%s.%N)
+echo -n "Sending funding msg...    "
+FUNDING_START=$(date +%s.%N)
 FUNDING_MSG=$(./lotus send $f4 1 | tail -n 1)
+FUNDING_END=$(date +%s.%N)
+echo `echo $FUNDING_END - $FUNDING_START | bc`
 
 echo -n "Awaiting funding...    "
+MINING_START=$(date +%s.%N)
 FUNDING_RECEIPT=$(./lotus state wait-msg $FUNDING_MSG)
 MINING_END=$(date +%s.%N)
 echo `echo $MINING_END - $MINING_START | bc`
