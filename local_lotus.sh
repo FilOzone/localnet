@@ -51,6 +51,12 @@ done
 EXIT_TRAP+="; kill -2 $!"
 trap "$EXIT_TRAP" EXIT
 
+echo -n "Awaiting miner api...    "
+MINER_API_START=$(date +%s.%N)
+MINER_API_MSG=$(./lotus-miner wait-api | tail -n 1)
+MINER_API_END=$(date +%s.%N)
+echo `echo $MINER_API_END - $MINER_API_START | bc`
+
 echo -n "Sending funding msg...    "
 FUNDING_START=$(date +%s.%N)
 FUNDING_MSG=$(./lotus send $f4 1 | tail -n 1)
