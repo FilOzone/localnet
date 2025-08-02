@@ -1,11 +1,5 @@
-export LOTUS_PATH=~/.lotus-local-net
-export LOTUS_MINER_PATH=~/.lotus-miner-local-net
-export LOTUS_SKIP_GENESIS_CHECK=_yes_
-export CGO_CFLAGS_ALLOW="-D__BLST_PORTABLE__"
-export CGO_CFLAGS="-D__BLST_PORTABLE__"
-export LOTUS_CHAININDEXER_ENABLEINDEXER=1
-export LOTUS_FEVM_ENABLEETHRPC=1
-
+source env.sh
+source util.sh
 
 cd lotus-local-net
 
@@ -17,8 +11,9 @@ done
 API_START=$(date +%s.%N)
 ./lotus daemon --bootstrap=false &> daemon.log &
 DAEMON_PID=$!
-EXIT_TRAP="kill -2 $DAEMON_PID 2>&1" 
+EXIT_TRAP="kill -2 $DAEMON_PID 2>/dev/null"
 trap "$EXIT_TRAP" EXIT
+
 
 echo -n "Awaiting Lotus Daemon API...    "
 until [ -e $LOTUS_PATH/api ]; do
@@ -35,40 +30,31 @@ done
 API_END=$(date +%s.%N)
 echo `echo $API_END - $API_START | bc`
 
-
-echo -n "Creating f4 account...    "
-WALLET_START=$(date +%s.%N)
-f4=$(./lotus wallet new delegated)
-WALLET_END=$(date +%s.%N)
-echo `echo $WALLET_END - $WALLET_START | bc`
-
 while [ -e $LOTUS_MINER_PATH/repo.lock ]; do
     echo found existing $LOTUS_MINER_PATH/repo.lock
     sleep 5
 done
 
 ./lotus-miner run --nosync &> miner.log &
-EXIT_TRAP+="; kill -2 $!"
+EXIT_TRAP+="; kill -2 $! 2>/dev/null"
 trap "$EXIT_TRAP" EXIT
 
-echo -n "Awaiting miner api...    "
-MINER_API_START=$(date +%s.%N)
-MINER_API_MSG=$(./lotus-miner wait-api | tail -n 1)
-MINER_API_END=$(date +%s.%N)
-echo `echo $MINER_API_END - $MINER_API_START | bc`
+timed_set "Creating f4 account" f4 ./lotus wallet new delegated
 
-echo -n "Sending funding msg...    "
-FUNDING_START=$(date +%s.%N)
-FUNDING_MSG=$(./lotus send $f4 1 | tail -n 1)
-FUNDING_END=$(date +%s.%N)
-echo `echo $FUNDING_END - $FUNDING_START | bc`
+echo $f4
 
-echo -n "Awaiting funding...    "
-MINING_START=$(date +%s.%N)
-FUNDING_RECEIPT=$(./lotus state wait-msg $FUNDING_MSG)
-MINING_END=$(date +%s.%N)
-echo `echo $MINING_END - $MINING_START | bc`
+timed_quiet "Awaiting miner api" ./lotus-miner wait-api
+timed_set "Sending funding msg" FUNDING_MSG ./lotus send $f4 1 
+FUNDING_MSG=$(echo -e "$FUNDING_MSG" | tail -n 1)
+echo -e $FUNDING_MSG
+
+timed_set "Awaiting funding" FUNDING_RECEIPT ./lotus state wait-msg $FUNDING_MSG
 
 echo -e "$FUNDING_RECEIPT"
 
 ./lotus evm stat $f4
+
+timed_set "Deploying contract" DEPLOY_RESULT ./lotus evm deploy --from $f4 --hex ../contract.hex
+
+CONTRACT_ADDRESS=$(echo -e "$DEPLOY_RESULT" | grep "Eth Address:" | cut -c 14-)
+echo $CONTRACT_ADDRESS
