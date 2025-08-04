@@ -1,5 +1,6 @@
 #!/bin/bash
 
+cd $( dirname -- $BASH_SOURCE )
 source env.sh
 source util.sh
 
@@ -14,7 +15,7 @@ while [ -e $LOTUS_PATH/repo.lock ]; do
     sleep 5
 done
 
-API_START=$(date +%s.%N)
+API_START=$( date +%s.%N)
 ./lotus daemon --lotus-make-genesis=devgen.car --genesis-template=localnet.json --bootstrap=false &> daemon.log &
 DAEMON_PID=$!
 EXIT_TRAP="kill -2 $DAEMON_PID 2>&1"
@@ -32,7 +33,7 @@ until [ -e $LOTUS_PATH/api ]; do
     fi
 done
 
-API_END=$(date +%s.%N)
+API_END=$( date +%s.%N)
 echo `echo $API_END - $API_START | bc`
 
 timed_quiet "Importing genesis wallet" ./lotus wallet import --as-default ~/.genesis-sectors/pre-seal-t01000.key

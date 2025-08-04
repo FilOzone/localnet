@@ -1,3 +1,4 @@
+cd $( dirname -- $BASH_SOURCE )
 source env.sh
 source util.sh
 
@@ -30,6 +31,11 @@ done
 API_END=$(date +%s.%N)
 echo `echo $API_END - $API_START | bc`
 
+export API_MULTIADDR="$( <$LOTUS_PATH/api )"
+export API_URL="$( url_from_multiaddr $API_MULTIADDR )"
+echo $API_URL
+
+
 while [ -e $LOTUS_MINER_PATH/repo.lock ]; do
     echo found existing $LOTUS_MINER_PATH/repo.lock
     sleep 5
@@ -38,6 +44,7 @@ done
 ./lotus-miner run --nosync &> miner.log &
 EXIT_TRAP+="; kill -2 $! 2>/dev/null"
 trap "$EXIT_TRAP" EXIT
+
 
 timed_set "Creating f4 account" f4 ./lotus wallet new delegated
 
@@ -50,11 +57,12 @@ echo -e $FUNDING_MSG
 
 timed_set "Awaiting funding" FUNDING_RECEIPT ./lotus state wait-msg $FUNDING_MSG
 
-echo -e "$FUNDING_RECEIPT"
+echo -e "$FUNDING_RECEIPT" | grep "Gas Used: " | cut -c 11-
 
-./lotus evm stat $f4
+STAT=$(./lotus evm stat $f4)
+export SENDER_ADDRESS=$(echo -e "$STAT" | grep "Eth address:" | cut -c 14-)
+echo $SENDER_ADDRESS
 
-timed_set "Deploying contract" DEPLOY_RESULT ./lotus evm deploy --from $f4 --hex ../contract.hex
-
-CONTRACT_ADDRESS=$(echo -e "$DEPLOY_RESULT" | grep "Eth Address:" | cut -c 14-)
-echo $CONTRACT_ADDRESS
+#timed_set "Deploying contract" DEPLOY_RESULT ./lotus evm deploy --from $f4 --hex ../contract.hex
+#CONTRACT_ADDRESS=$(echo -e "$DEPLOY_RESULT" | grep "Eth Address:" | cut -c 14-)
+#echo $CONTRACT_ADDRESS
