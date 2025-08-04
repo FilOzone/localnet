@@ -35,7 +35,7 @@ export API_MULTIADDR="$( <$LOTUS_PATH/api )"
 export API_URL="$( url_from_multiaddr $API_MULTIADDR )"
 echo $API_URL
 
-if [ -z "${PROXY_PORT:-}" ]; then
+if [ -n "${PROXY_PORT:-}" ]; then
     export API_URL="http://localhost:$PROXY_PORT"
     echo $API_URL
 fi
