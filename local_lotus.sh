@@ -70,7 +70,6 @@ echo $SENDER_ADDRESS
 
 WALLET32=$( echo -n "wallet-$f4" | base32 -w0 | cut -c -82 )
 KEYFILE=$LOTUS_PATH/keystore/$WALLET32
-echo $KEYFILE
 export SENDER_KEY=$( jq -r .PrivateKey $KEYFILE | base64 -d | xxd -p | tr -d '\n' )
 
 #timed_set "Deploying contract" DEPLOY_RESULT ./lotus evm deploy --from $f4 --hex ../contract.hex
