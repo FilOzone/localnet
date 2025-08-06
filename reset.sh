@@ -38,3 +38,5 @@ echo `echo $API_END - $API_START | bc`
 
 timed_quiet "Importing genesis wallet" ./lotus wallet import --as-default ~/.genesis-sectors/pre-seal-t01000.key
 timed_quiet "Init genesis miner" ./lotus-miner init --genesis-miner --actor=t01000 --sector-size=2KiB --pre-sealed-sectors=~/.genesis-sectors --pre-sealed-metadata=~/.genesis-sectors/pre-seal-t01000.json --nosync
+timed_set "Importing test key" IMPORT_RESULT ./lotus wallet import ../test_key_do_not_use.key
+echo -e "$IMPORT_RESULT"

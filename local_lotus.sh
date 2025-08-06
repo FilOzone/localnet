@@ -51,9 +51,7 @@ EXIT_TRAP+="; kill -2 $! 2>/dev/null"
 trap "$EXIT_TRAP" EXIT
 
 
-timed_set "Creating f4 account" f4 ./lotus wallet new delegated
-
-echo $f4
+f4=t410fow4ccuyh4g7vyggn6hiwuf6a366h343m45eatsa
 
 timed_quiet "Awaiting miner api" ./lotus-miner wait-api
 timed_set "Sending funding msg" FUNDING_MSG ./lotus send $f4 1
@@ -71,7 +69,3 @@ echo $SENDER_ADDRESS
 WALLET32=$( echo -n "wallet-$f4" | base32 -w0 | cut -c -82 )
 KEYFILE=$LOTUS_PATH/keystore/$WALLET32
 export SENDER_KEY=$( jq -r .PrivateKey $KEYFILE | base64 -d | xxd -p | tr -d '\n' )
-
-#timed_set "Deploying contract" DEPLOY_RESULT ./lotus evm deploy --from $f4 --hex ../contract.hex
-#CONTRACT_ADDRESS=$( echo -e "$DEPLOY_RESULT" | grep "Eth Address:" | cut -c 14- )
-#echo $CONTRACT_ADDRESS
