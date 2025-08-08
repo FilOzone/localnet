@@ -1,1 +1,4 @@
 *.swp
+
+# lotus code repo for debug build
+lotus-local-net
