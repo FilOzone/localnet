@@ -3,7 +3,7 @@ cd $( dirname -- $BASH_SOURCE )
 source env.sh
 
 
-TAG=v1.33.0
+TAG=v1.33.1
 
 git config --global advice.detachedHead false
 git clone -b $TAG --depth 1 https://github.com/filecoin-project/lotus lotus-local-net
