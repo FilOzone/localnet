@@ -6,3 +6,6 @@ export CGO_CFLAGS="-D__BLST_PORTABLE__"
 export LOTUS_CHAININDEXER_ENABLEINDEXER=1
 export LOTUS_FEVM_ENABLEETHRPC=1
 export CHAIN_ID=31415926
+
+export LOTUS_BUILTIN_ACTORS_V18_BUNDLE=~/projects/builtin-actors/output/builtin-actors-devnet.car
+export LOTUS_FIREHORSE_HEIGHT=4

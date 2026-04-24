@@ -19,7 +19,7 @@ API_START=$( date +%s.%N)
 ./lotus daemon --lotus-make-genesis=devgen.car --genesis-template=localnet.json --bootstrap=false &> daemon.log &
 DAEMON_PID=$!
 EXIT_TRAP="kill -2 $DAEMON_PID 2>&1"
-trap "$EXIT_TRAP" EXIT
+trap "$EXIT_TRAP ; wait" EXIT
 
 echo -n "Awaiting Lotus Daemon API...    "
 until [ -e $LOTUS_PATH/api ]; do

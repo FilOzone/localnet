@@ -1,13 +1,16 @@
-cd $( dirname -- $BASH_SOURCE )
+pushd $( dirname -- $BASH_SOURCE )
 
 source env.sh
 
+git clone -b porep --recurse-submodules https://github.com/FilOzone/filecoin-services filecoin-services
+mkdir -p filecoin-services/service_contracts/script
+ln script/PoRepSmokeTest.s.sol filecoin-services/service_contracts/script
 
-TAG=v1.33.1
+TAG=phi/butterfly-nv28
 
 git config --global advice.detachedHead false
 git clone -b $TAG --depth 1 https://github.com/filecoin-project/lotus lotus-local-net
-cd lotus-local-net
+pushd lotus-local-net
 
 make 2k
 
@@ -18,3 +21,7 @@ make 2k
 ./lotus-seed pre-seal --sector-size 2KiB --num-sectors 2
 ./lotus-seed genesis new localnet.json
 ./lotus-seed genesis add-miner localnet.json ~/.genesis-sectors/pre-seal-t01000.json
+
+popd
+
+popd

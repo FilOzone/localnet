@@ -2,3 +2,9 @@
 
 # lotus code repo for debug build
 lotus-local-net
+
+# filecoin-services checkout
+filecoin-services
+
+# build artifact
+sector-notify

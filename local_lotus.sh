@@ -13,7 +13,7 @@ API_START=$(date +%s.%N)
 ./lotus daemon --bootstrap=false &> daemon.log &
 DAEMON_PID=$!
 EXIT_TRAP="kill -2 $DAEMON_PID 2>/dev/null"
-trap "$EXIT_TRAP" EXIT
+trap "$EXIT_TRAP ; wait" EXIT
 
 
 echo -n "Awaiting Lotus Daemon API...    "
@@ -48,13 +48,13 @@ done
 
 ./lotus-miner run --nosync &> miner.log &
 EXIT_TRAP+="; kill -2 $! 2>/dev/null"
-trap "$EXIT_TRAP" EXIT
+trap "$EXIT_TRAP ; wait" EXIT
 
 
 f4=t410fow4ccuyh4g7vyggn6hiwuf6a366h343m45eatsa
 
 timed_quiet "Awaiting miner api" ./lotus-miner wait-api
-timed_set "Sending funding msg" FUNDING_MSG ./lotus send $f4 1
+timed_set "Sending funding msg" FUNDING_MSG ./lotus send $f4 100
 FUNDING_MSG=$(echo -e "$FUNDING_MSG" | tail -n 1)
 echo -e $FUNDING_MSG
 
