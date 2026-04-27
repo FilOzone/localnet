@@ -11,3 +11,6 @@ source "$LOCALNET/prepare_piece.sh"
 source "$LOCALNET/create_service.sh"
 "$LOCALNET/sector_notify.sh"
 "$LOCALNET/check_lockup.sh"
+"$LOCALNET/amortize.sh"
+sleep 3
+"$LOCALNET/withdraw_receiver.sh"

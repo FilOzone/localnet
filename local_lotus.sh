@@ -51,7 +51,7 @@ EXIT_TRAP+="; kill -2 $! 2>/dev/null"
 trap "$EXIT_TRAP ; wait" EXIT
 
 
-f4=t410fow4ccuyh4g7vyggn6hiwuf6a366h343m45eatsa
+export f4=t410fow4ccuyh4g7vyggn6hiwuf6a366h343m45eatsa
 
 timed_quiet "Awaiting miner api" ./lotus-miner wait-api
 timed_set "Sending funding msg" FUNDING_MSG ./lotus send $f4 100
@@ -63,7 +63,7 @@ timed_set "Awaiting funding" FUNDING_RECEIPT ./lotus state wait-msg $FUNDING_MSG
 echo -e "$FUNDING_RECEIPT" | grep "Gas Used: " | cut -c 11-
 
 STAT=$(./lotus evm stat $f4)
-export SENDER_ADDRESS=$( echo -e "$STAT" | grep "Eth address:" | cut -c 14- )
+export SENDER_ADDRESS=$( echo -e "$STAT" | grep "Eth address:" | grep -oE '0x[0-9a-fA-F]+' )
 echo $SENDER_ADDRESS
 
 WALLET32=$( echo -n "wallet-$f4" | base32 -w0 | cut -c -82 )
