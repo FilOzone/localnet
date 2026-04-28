@@ -9,8 +9,9 @@ source "$LOCALNET/create_miner.sh"
 
 source "$LOCALNET/prepare_piece.sh"
 source "$LOCALNET/create_service.sh"
-"$LOCALNET/sector_notify.sh"
+source "$LOCALNET/sector_notify.sh"
 "$LOCALNET/check_lockup.sh"
 "$LOCALNET/amortize.sh"
 sleep 3
 "$LOCALNET/withdraw_receiver.sh"
+"$LOCALNET/sector_faulty.sh"
