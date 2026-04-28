@@ -8,3 +8,4 @@ filecoin-services
 
 # build artifact
 sector-notify
+declare-faults
