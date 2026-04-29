@@ -2,7 +2,6 @@
 set -e
 
 LOCALNET="$( cd "$( dirname -- "$BASH_SOURCE" )" && pwd )"
-LOTUS="$LOCALNET/lotus-local-net/lotus"
 
 echo "Looking up sector partition..."
 cd "$LOCALNET"
@@ -45,13 +44,9 @@ RECEIPT=$(cast send "$DEAL_ADDRESS" \
 echo "$RECEIPT"
 
 TX_STATUS=$(echo "$RECEIPT" | grep "^status" | awk '{print $2}')
-TX_HASH=$(echo "$RECEIPT"  | grep "^transactionHash" | awk '{print $2}')
 
 if [ "$TX_STATUS" != "1" ]; then
-    echo "sectorFaulty failed (status=$TX_STATUS), getting trace..."
-    MSG_CID=$("$LOTUS" eth get-message-cid-by-transaction-hash "$TX_HASH" 2>&1 | tail -1)
-    echo "Message CID: $MSG_CID"
-    "$LOTUS" state replay --show-trace "$MSG_CID" || true
+    echo "sectorFaulty failed (status=$TX_STATUS)"
     exit 1
 fi
 

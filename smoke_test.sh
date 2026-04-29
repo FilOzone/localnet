@@ -15,3 +15,4 @@ source "$LOCALNET/sector_notify.sh"
 sleep 3
 "$LOCALNET/withdraw_receiver.sh"
 "$LOCALNET/sector_faulty.sh"
+"$LOCALNET/sector_terminate.sh"
